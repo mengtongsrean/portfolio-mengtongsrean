@@ -6,20 +6,20 @@
         </div>
         <div class="row d-flex justify-content-between mt-4">
             <div class="col-lg-7 col-md-12 col-xs-12 mb-5 mb-lg-0">
-                <form ref="contactForm" class="border-right pr-5 mb-5" @submit.prevent="handleSubmit()"
-                    action="https://api.web3forms.com/submit" method="POST">
+                <form ref="contactForm" class="needs-validation border-right pr-5 mb-5" @submit.prevent="handleSubmit"
+                    novalidate>
                     <input type="hidden" name="access_key" value="b9843fb4-93d3-4c91-af3b-1a618984ef45">
                     <div class="row d-flex">
                         <div class="col-md-6 col-xs-12 mb-4 form-group">
                             <input type="text" class="form-control" name="fname" id="fname" v-model="firstname"
-                                placeholder="First name">
+                                placeholder="First name" required>
                             <div v-if="errors.firstname" class="text-danger">
                                 {{ errors.firstname }}
                             </div>
                         </div>
                         <div class="col-md-6 col-xs-12 mb-4 form-group">
                             <input type="text" class="form-control" name="lname" id="lname" placeholder="Last name"
-                                v-model="lastname">
+                                v-model="lastname" required>
                             <div v-if="errors.lastname" class="text-danger">
                                 {{ errors.lastname }}
                             </div>
@@ -27,8 +27,8 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12 col-sm-12 col-xs-12 mb-4 form-group">
-                            <input type="text" class="form-control" name="email" id="email" placeholder="Email"
-                                v-model="email">
+                            <input type="email" class="form-control" name="email" id="email" placeholder="Email"
+                                v-model="email" required>
                             <div v-if="errors.email" class="text-danger">
                                 {{ errors.email }}
                             </div>
@@ -37,7 +37,7 @@
                     <div class="row">
                         <div class="col-md-12 col-xs-12 mb-4 form-group">
                             <textarea class="form-control" name="message" id="message" cols="30" rows="7"
-                                v-model="textmessage" placeholder="Drop your message here"></textarea>
+                                v-model="textmessage" placeholder="Drop your message here" required></textarea>
                         </div>
                     </div>
                     <div class="row">
@@ -48,6 +48,7 @@
                         </div>
                     </div>
                 </form>
+                <div id="result"></div>
             </div>
             <div class="col-md-4 col-sm-12 col-xs-12 ml-auto">
                 <h3 class="mb-4">OR REACH ME BY</h3>
@@ -65,7 +66,6 @@
                         <div><a href="tel:+61475679863">+61 475 679 863</a></div>
                     </li>
                 </ul>
-
                 <hr>
                 <ul class="social-media-list">
                     <a href="https://github.com/mengtongsrean" target="_blank">
@@ -86,7 +86,8 @@
         </div>
     </div>
 </template>
-<script scoped>
+
+<script>
 export default {
     data() {
         return {
@@ -98,44 +99,76 @@ export default {
         }
     },
     methods: {
-        // Method to validate email format
         validateEmail(email) {
             const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             return emailPattern.test(email);
         },
-        // Method to validate form inputs
         validateForm() {
             this.errors = {};
             const namePattern = /^[A-Za-z]+$/;
 
-            // Validate username
             if (!this.firstname || !this.firstname.match(namePattern)) {
-                this.errors.firstname = "Firstname must be letters only.";
+                this.errors.firstname = 'Firstname must be letters only.';
             }
 
             if (!this.lastname || !this.lastname.match(namePattern)) {
-                this.errors.lastname = "Lastname must be letters only.";
+                this.errors.lastname = 'Lastname must be letters only.';
             }
 
             if (!this.email || !this.validateEmail(this.email)) {
-                this.errors.email = "Email must be in email format only.";
+                this.errors.email = 'Email must be in email format only.';
             }
-            return Object.keys(this.errors).length === 0; // Return true if no errors
+
+            return Object.keys(this.errors).length === 0;
         },
-        // Method to handle form submission
-        handleSubmit() {
-            if (this.validateForm()) {
-                // Submit form if validation passes
-                this.$refs.contactForm.submit();
-                this.firstname = '';
-                this.lastname = '';
-                this.email = '';
-                this.textmessage = '';
+        async handleSubmit() {
+            const form = this.$refs.contactForm;
+            if (this.validateForm() && form.checkValidity()) {
+                // Collect form data
+                const formData = new FormData(form);
+                const jsonData = JSON.stringify(Object.fromEntries(formData));
+
+                // Display loading message
+                const resultElement = document.getElementById("result");
+                resultElement.innerHTML = "Please wait...";
+                resultElement.className = ""; // Reset classes
+
+                try {
+                    // Send data using fetch
+                    const response = await fetch("https://api.web3forms.com/submit", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Accept: "application/json",
+                        },
+                        body: jsonData,
+                    });
+
+                    const result = await response.json();
+                    if (response.ok) {
+                        resultElement.innerHTML = result.message;
+                        resultElement.classList.add("text-success");
+                    } else {
+                        resultElement.innerHTML = result.message;
+                        resultElement.classList.add("text-error");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    resultElement.innerHTML = "Something went wrong!";
+                    resultElement.classList.add("text-error");
+                } finally {
+                    form.reset();
+                    form.classList.remove("was-validated");
+                    form.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid', 'is-valid')); // Remove validation classes
+                    setTimeout(() => {
+                        resultElement.style.display = "none";
+                    }, 5000);
+                }
             }
+            form.classList.add("was-validated");
         }
     }
 }
-
 </script>
 <style scoped>
 .form.border-right {
@@ -189,5 +222,19 @@ h4 {
 
 hr {
     border-color: rgb(114, 112, 112);
+}
+
+#result {
+    font-weight: bold;
+    margin-top: 20px;
+    transition: color 0.3s ease-in-out;
+}
+
+.text-success {
+    color: green;
+}
+
+.text-error {
+    color: red;
 }
 </style>
