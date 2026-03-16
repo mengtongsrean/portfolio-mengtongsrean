@@ -1,168 +1,109 @@
 <template>
+  <div class="app-root">
     <NavBar></NavBar>
     <router-view v-slot="{ Component }">
-        <Transition name="page-slide" mode="out-in">
-            <component :is="Component"></component>
-        </Transition>
+      <Transition name="page-fade" mode="out-in">
+        <component :is="Component"></component>
+      </Transition>
     </router-view>
+  </div>
 </template>
+
 <script>
 import NavBar from '@/components/NavBar.vue'
 export default {
-    components: {
-        NavBar
-    }
+  components: { NavBar }
 }
 </script>
+
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+/* ── Google Fonts ── */
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap");
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: #080810;
+  scroll-behavior: smooth;
+}
 
 body {
-    font-family: "Poppins", sans-serif;
+  font-family: 'Sora', sans-serif;
+  background-color: #080810;
+  color: #e8e6f0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-h1,
-h2,
-h3,
-h5,
-p,
-span {
-    letter-spacing: 1.2px;
+#app,
+.app-root {
+  background-color: #080810;
+  min-height: 100vh;
 }
 
-/* BUTTON */
-.btn-wrapper {
-    margin-top: 18px;
+/* ── Typography defaults ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Sora', sans-serif;
+  color: #f0eeff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
-.btn {
-    border: none;
-    padding: 12px 24px;
-    border-radius: 24px;
-    font-size: 12px;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-    cursor: pointer;
+p, span, li {
+  letter-spacing: 0.01em;
+  line-height: 1.7;
 }
 
-.btn+.btn {
-    margin-left: 10px;
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080810;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(124, 111, 234, 0.35);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 111, 234, 0.6);
 }
 
-.outline {
-    background: transparent;
-    color: rgba(0, 212, 255, 0.9);
-    border: 1px solid rgba(2, 115, 138, 0.6);
-    transition: all .3s ease;
-    color: rgb(2, 118, 134);
-    font-weight: 550;
+/* ── Selection ── */
+::selection {
+  background: rgba(124, 111, 234, 0.3);
+  color: #f0eeff;
 }
 
-.outline:hover {
-    transform: scale(1.125);
-    border-color: rgba(1, 18, 112, 0.9);
-    transition: all .3s ease;
-    color: rgb(2, 87, 143);
-    font-weight: 600;
+/* ── Page transition ── */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.fill {
-    background-color: rgba(0, 212, 255, 0.9);
-    color: rgba(255, 255, 255, 0.95);
-    filter: drop-shadow(0);
-    font-weight: bold;
-    transition: all .3s ease;
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
 }
 
-.fill:hover {
-    transform: scale(1.125);
-    background-color: rgba(0, 212, 255, 0.9);
-    border-color: rgba(255, 255, 255, 0.9);
-    filter: drop-shadow(0 10px 5px rgba(0, 0, 0, 0.125));
-    transition: all .3s ease;
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
-/* END OF BUTTON */
-
-
-/* Social Media Icons */
-.social-media-list {
-    position: relative;
-    font-size: 20px;
-    text-align: center;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0;
-}
-
-.social-media-list a i {
-    color: white;
-}
-
-.social-media-list a {
-    position: relative;
-    display: inline-block;
-    height: 55px;
-    width: 55px;
-    margin: 5px 15px;
-    line-height: 55px;
-    border-radius: 50%;
-    background-color: rgb(27, 27, 27);
-    cursor: pointer;
-    transition: all .2s ease-in-out;
-}
-
-.social-media-list a:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 55px;
-    height: 55px;
-    line-height: 55px;
-    border-radius: 50%;
-    opacity: 0;
-    box-shadow: 0 0 0 1px #fff;
-    transition: all .2s ease-in-out;
-}
-
-.social-media-list a:hover {
-    background-color: #22cef4;
-}
-
-.social-media-list a:hover:after {
-    opacity: 1;
-    transform: scale(1.12);
-    transition-timing-function: cubic-bezier(0.37, 0.74, 0.15, 1.65);
-}
-
-.social-media-list a:hover i {
-    color: #000;
-}
-
-/* Begin Media Queries*/
-@media screen and (max-width: 850px) {
-    .social-media-list i {
-        height: 55px;
-        width: 55px;
-        line-height: 55px;
-    }
-
-    .social-media-list i:after {
-        width: 55px;
-        height: 55px;
-        line-height: 55px;
-    }
-}
-
-.page-slide-enter-active,
-.page-slide-leave-active {
-    transition: 400ms ease all;
-}
-
-.page-slide-enter-from,
-.page-slide-leave-to {
-    opacity: 0;
-    transform: translateY(60px);
+/* ── Section line decoration ── */
+.line {
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(135deg, #7c6fea, #14b8a6);
+  border-radius: 2px;
+  margin-top: 8px;
 }
 </style>
